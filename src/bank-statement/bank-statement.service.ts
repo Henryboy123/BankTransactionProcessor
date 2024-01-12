@@ -1,4 +1,3 @@
-// src/bank-statement.service.ts
 import { Injectable } from '@nestjs/common';
 import * as csvParser from 'csv-parser';
 import * as fs from 'fs';
@@ -9,12 +8,10 @@ export class BankStatementService {
   private transactionReferences = new Set<string>();
   private failedRecords = [];
 
-  processCSV(filePath: string): void {
+  processCSV(filePath: string) {
     fs.createReadStream(filePath)
       .pipe(csvParser())
       .on('data', (row) => {
-        console.log(row);
-
         this.validateRecord(row);
       })
       .on('end', () => {
@@ -22,7 +19,7 @@ export class BankStatementService {
       });
   }
 
-  processXML(filePath: string): void {
+  processXML(filePath: string) {
     const parser = new xml2js.Parser();
 
     fs.readFile(filePath, 'utf-8', (err, data) => {
@@ -56,8 +53,8 @@ export class BankStatementService {
     });
   }
 
-  private validateRecord(record: Record<string, any>): void {
-    let normalizedRecord = {
+  private validateRecord(record: Record<string, any>) {
+    const normalizedRecord = {
       transactionReference: record.Reference,
       startBalance: parseFloat(record['Start Balance']),
       mutation: parseFloat(record.Mutation),
@@ -100,5 +97,7 @@ export class BankStatementService {
         `Transaction Reference: ${record.TransactionReference}, Description: ${record.Description}`,
       );
     });
+    this.transactionReferences.clear();
+    this.failedRecords = [];
   }
 }
